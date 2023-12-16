@@ -3,12 +3,40 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 
 
+
+//GET INVENTORY
+exports.getInventory = async (req, res) => {
+  try {
+    const inventory = await Product.find();
+    res.status(200).json(inventory);
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
+// GET ALL USER ORDERS
+exports.getAllUsersOrders = async (req, res) => {
+  try {
+    const allOrders = await Order.find();
+
+    res.status(200).json(allOrders);
+  } catch (error) {
+    console.error('Error fetching all users orders:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
+
 //ADD PRODUCTS
 exports.addProduct = async (req, res) => {
   try {
-    const { name, image, description, weight, quantity, price } = req.body;
+    const { name, image, description,
+       weight, quantity, price } = req.body;
 
-    // Create a new product
+
     const newProduct = new Product({ name, image, description, weight, quantity, price });
 
     await newProduct.save();
@@ -25,8 +53,7 @@ exports.addProduct = async (req, res) => {
 //UPDATE PRODUCT QUANTITY
 exports.updateProductQuantity = async (req, res) => {
   try {
-    const { productId } = req.params;
-    const { quantity } = req.body;
+    const { quantity,productId } = req.body;
 
 
     const product = await Product.findById(productId);
@@ -47,7 +74,7 @@ exports.updateProductQuantity = async (req, res) => {
 //DELETE PRODUCT
 exports.deleteProduct = async (req, res) => {
   try {
-    const { productId } = req.params;
+    const { productId } = req.body;
 
     const product = await Product.findById(productId);
     if (!product) {
@@ -64,13 +91,32 @@ exports.deleteProduct = async (req, res) => {
 };
 
 
+// Get Single Product
+exports.getSingleProduct = async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.error('Error fetching single product:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
+
 //PLACE ORDER
 exports.placeOrder = async (req, res) => {
   try {
     const { customerId, products } = req.body;
 
     const customer = await User.findById(customerId);
-    console.log(customer, "cust")
     if (!customer) {
       return res.status(404).json({ message: 'Customer not found' });
     }
@@ -87,20 +133,17 @@ exports.placeOrder = async (req, res) => {
 };
 
 
-//UPDATE ORDER STATUS
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { orderId } = req.params;
-    const { status } = req.body;
+    const { status,orderId } = req.body;
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    await Order.findByIdAndUpdate(orderId, { $set: { status } });
-
-    res.status(200).json({ message: 'Order status updated successfully' });
+    res.status(200).json({ message: 'Order status updated successfully', order });
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ message: 'Internal Server Error' });

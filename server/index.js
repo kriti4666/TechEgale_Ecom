@@ -3,15 +3,14 @@ const mongoose = require('mongoose');
 // const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
 const connection = require("./config/db")
+const cors = require("cors")
 
 const customerRoutes = require('./routes/customer');
 const managerRoutes = require('./routes/manager');
 
 const app = express();
-
-
 app.use(express.json());
-
+app.use(cors())
 
 
 app.use('/auth', authRoutes);

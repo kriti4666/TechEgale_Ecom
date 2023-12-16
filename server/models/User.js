@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     name: { type: String, required: true },
     address: { type: String, required: true },
+    cart: [{ productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }, quantity: Number }],
     role: { type: String, enum: ['Customer', 'Manager'], required: true },
 });
 
