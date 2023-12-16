@@ -37,6 +37,7 @@ const ProductProvider = ({ children }) => {
         return state;
     }
   };
+  console.log(BASE_URL, "base")
 
   const [state, dispatch] = useReducer(productReducer, initialState);
 
